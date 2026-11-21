@@ -233,11 +233,396 @@
                     </optgroup>
                 </select>
             </div>
+
+            <div class="acoes-dicas">
+                <button id="btn-conferir" class="botao" type="button">Conferir</button>
+                <button id="btn-limpar" class="botao botao-secundario" type="button">Limpar</button>
+            </div>
+            <p id="resultado" class="resultado" role="status" aria-live="polite"></p>
         </aside>
     </main>
 
     <footer class="rodape">
         <p>Desenvolvido por Guilherme Wesselka &mdash; 1ADSB</p>
     </footer>
+
+    <script>
+        // ===== Elementos da página =====
+        const seletor = document.querySelector("#seletor-dicas");
+        const botaoConferir = document.querySelector("#btn-conferir");
+        const botaoLimpar = document.querySelector("#btn-limpar");
+        const resultado = document.querySelector("#resultado");
+        const celulas = document.querySelectorAll(".celula");
+
+        // ===== Palavras do jogo =====
+        // linha e coluna indicam onde cada palavra começa.
+        const palavras = [
+            { numero: 1, direcao: "H", linha: 0, coluna: 3, resposta: "UC" },
+            { numero: 1, direcao: "V", linha: 0, coluna: 3, resposta: "ULA" },
+            { numero: 2, direcao: "H", linha: 0, coluna: 9, resposta: "DMA" },
+            { numero: 3, direcao: "V", linha: 0, coluna: 10, resposta: "MEMORIADEMASSA" },
+            { numero: 4, direcao: "V", linha: 1, coluna: 6, resposta: "EEPROM" },
+            { numero: 5, direcao: "H", linha: 2, coluna: 2, resposta: "CACHE" },
+            { numero: 6, direcao: "V", linha: 2, coluna: 8, resposta: "ADDRESSBUS" },
+            { numero: 7, direcao: "H", linha: 4, coluna: 0, resposta: "REGISTRADORES" },
+            { numero: 7, direcao: "V", linha: 4, coluna: 0, resposta: "RAM" },
+            { numero: 8, direcao: "H", linha: 6, coluna: 4, resposta: "ROM" },
+            { numero: 9, direcao: "H", linha: 10, coluna: 6, resposta: "CPU" },
+            { numero: 10, direcao: "H", linha: 13, coluna: 8, resposta: "FLASH" }
+        ];
+
+        // Guardam o estado atual do jogo.
+        let palavraAtual = null;
+        let celulaAtual = null;
+        let direcao = "H";
+        let eraCelulaAtiva = false;
+
+        // ===== Funções auxiliares =====
+
+        // Procura uma célula pela linha e pela coluna.
+        function buscarCelula(linha, coluna) {
+            return document.querySelector(
+                '.celula[data-linha="' + linha + '"][data-coluna="' + coluna + '"]'
+            );
+        }
+
+        // Guarda em cada palavra quais células ela ocupa.
+        for (let i = 0; i < palavras.length; i++) {
+            const palavra = palavras[i];
+            palavra.celulas = [];
+
+            for (let j = 0; j < palavra.resposta.length; j++) {
+                let linha = palavra.linha;
+                let coluna = palavra.coluna;
+
+                if (palavra.direcao === "H") {
+                    coluna = coluna + j;
+                } else {
+                    linha = linha + j;
+                }
+
+                palavra.celulas.push(buscarCelula(linha, coluna));
+            }
+        }
+
+        // Descobre quais palavras passam por uma célula.
+        function palavrasDaCelula(celula) {
+            const lista = [];
+
+            for (let i = 0; i < palavras.length; i++) {
+                if (palavras[i].celulas.indexOf(celula) !== -1) {
+                    lista.push(palavras[i]);
+                }
+            }
+
+            return lista;
+        }
+
+        // Escolhe a palavra que combina com a direção atual.
+        function escolherPalavra(opcoes) {
+            for (let i = 0; i < opcoes.length; i++) {
+                if (opcoes[i].direcao === direcao) {
+                    return opcoes[i];
+                }
+            }
+            return opcoes[0];
+        }
+
+        // Remove os destaques de todas as células.
+        function limparDestaques() {
+            const palavrasAtivas = document.querySelectorAll(".palavra-ativa");
+            const celulasAtivas = document.querySelectorAll(".celula-ativa");
+
+            for (let i = 0; i < palavrasAtivas.length; i++) {
+                palavrasAtivas[i].classList.remove("palavra-ativa");
+            }
+
+            for (let i = 0; i < celulasAtivas.length; i++) {
+                celulasAtivas[i].classList.remove("celula-ativa");
+            }
+        }
+
+        // Marca a célula onde o cursor está.
+        function marcarCelula(celula) {
+            const celulasAtivas = document.querySelectorAll(".celula-ativa");
+
+            for (let i = 0; i < celulasAtivas.length; i++) {
+                celulasAtivas[i].classList.remove("celula-ativa");
+            }
+
+            celula.classList.add("celula-ativa");
+            celulaAtual = celula;
+        }
+
+        // Destaca a palavra inteira e coloca o foco na célula indicada.
+        function selecionarPalavra(palavra, celula) {
+            if (celula === undefined) {
+                celula = palavra.celulas[0];
+            }
+
+            palavraAtual = palavra;
+            direcao = palavra.direcao;
+            limparDestaques();
+
+            for (let i = 0; i < palavra.celulas.length; i++) {
+                palavra.celulas[i].classList.add("palavra-ativa");
+            }
+
+            marcarCelula(celula);
+            seletor.value = palavra.direcao + palavra.numero;
+            celula.querySelector("input").focus();
+        }
+
+        function limparMarcas(celula) {
+            celula.classList.remove("certa", "errada");
+        }
+
+        function limparResultado() {
+            resultado.textContent = "";
+            resultado.classList.remove("sucesso");
+        }
+
+        // Move o cursor dentro da palavra atual.
+        function avancar(celula, passo) {
+            if (palavraAtual === null) {
+                return;
+            }
+
+            const indice = palavraAtual.celulas.indexOf(celula);
+            const proxima = palavraAtual.celulas[indice + passo];
+
+            if (proxima === undefined) {
+                return;
+            }
+
+            marcarCelula(proxima);
+            const input = proxima.querySelector("input");
+            input.focus();
+            input.select();
+        }
+
+        // ===== Criação dos campos de digitação =====
+
+        for (let i = 0; i < celulas.length; i++) {
+            const celula = celulas[i];
+
+            if (celula.classList.contains("celula-vazia")) {
+                continue;
+            }
+
+            const input = document.createElement("input");
+            input.type = "text";
+            input.maxLength = 1;
+            input.autocomplete = "off";
+            input.spellcheck = false;
+            input.setAttribute(
+                "aria-label",
+                "Linha " + (Number(celula.dataset.linha) + 1) +
+                ", coluna " + (Number(celula.dataset.coluna) + 1)
+            );
+            celula.appendChild(input);
+
+            // Ao focar, destaca a palavra que passa pela célula.
+            input.addEventListener("focus", function () {
+                const celulaDoInput = input.parentElement;
+
+                if (palavraAtual !== null && palavraAtual.celulas.indexOf(celulaDoInput) !== -1) {
+                    marcarCelula(celulaDoInput);
+                } else {
+                    const opcoes = palavrasDaCelula(celulaDoInput);
+                    selecionarPalavra(escolherPalavra(opcoes), celulaDoInput);
+                }
+
+                input.select();
+            });
+
+            // Guarda se a célula já estava ativa antes do clique.
+            input.addEventListener("mousedown", function () {
+                eraCelulaAtiva = (celulaAtual === input.parentElement);
+            });
+
+            // Clicar de novo na mesma célula troca a direção.
+            input.addEventListener("click", function () {
+                const celulaDoInput = input.parentElement;
+                const opcoes = palavrasDaCelula(celulaDoInput);
+
+                if (eraCelulaAtiva && opcoes.length === 2) {
+                    let outra = opcoes[0];
+
+                    if (outra === palavraAtual) {
+                        outra = opcoes[1];
+                    }
+
+                    selecionarPalavra(outra, celulaDoInput);
+                }
+
+                eraCelulaAtiva = false;
+            });
+
+            // Digitação: aceita uma letra, sem acentos, e avança.
+            input.addEventListener("input", function () {
+                const celulaDoInput = input.parentElement;
+                let letra = input.value.toUpperCase();
+
+                // Remove acentos (por exemplo, "á" vira "A").
+                letra = letra.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                letra = letra.replace(/[^A-Z]/g, "");
+
+                input.value = letra.slice(-1);
+                limparMarcas(celulaDoInput);
+                limparResultado();
+
+                if (input.value !== "") {
+                    avancar(celulaDoInput, 1);
+                }
+            });
+
+            // Teclas especiais: apagar e navegar com as setas.
+            input.addEventListener("keydown", function (evento) {
+                const celulaDoInput = input.parentElement;
+
+                if (evento.key === "Backspace") {
+                    evento.preventDefault();
+                    limparResultado();
+
+                    if (input.value !== "") {
+                        input.value = "";
+                        limparMarcas(celulaDoInput);
+                    } else {
+                        avancar(celulaDoInput, -1);
+
+                        if (celulaAtual !== null) {
+                            celulaAtual.querySelector("input").value = "";
+                            limparMarcas(celulaAtual);
+                        }
+                    }
+                    return;
+                }
+
+                if (evento.key === "Delete") {
+                    evento.preventDefault();
+                    input.value = "";
+                    limparMarcas(celulaDoInput);
+                    limparResultado();
+                    return;
+                }
+
+                if (
+                    evento.key === "ArrowLeft" ||
+                    evento.key === "ArrowRight" ||
+                    evento.key === "ArrowUp" ||
+                    evento.key === "ArrowDown"
+                ) {
+                    evento.preventDefault();
+
+                    let linha = Number(celulaDoInput.dataset.linha);
+                    let coluna = Number(celulaDoInput.dataset.coluna);
+
+                    if (evento.key === "ArrowLeft") {
+                        coluna = coluna - 1;
+                        direcao = "H";
+                    }
+
+                    if (evento.key === "ArrowRight") {
+                        coluna = coluna + 1;
+                        direcao = "H";
+                    }
+
+                    if (evento.key === "ArrowUp") {
+                        linha = linha - 1;
+                        direcao = "V";
+                    }
+
+                    if (evento.key === "ArrowDown") {
+                        linha = linha + 1;
+                        direcao = "V";
+                    }
+
+                    const alvo = buscarCelula(linha, coluna);
+
+                    if (alvo !== null && !alvo.classList.contains("celula-vazia")) {
+                        alvo.querySelector("input").focus();
+                    }
+                }
+            });
+        }
+
+        // ===== Escolha da dica no select =====
+
+        seletor.addEventListener("change", function () {
+            const valor = seletor.value;
+
+            if (valor === "") {
+                return;
+            }
+
+            const direcaoEscolhida = valor.charAt(0);
+            const numero = Number(valor.substring(1));
+
+            for (let i = 0; i < palavras.length; i++) {
+                const palavra = palavras[i];
+
+                if (palavra.direcao === direcaoEscolhida && palavra.numero === numero) {
+                    selecionarPalavra(palavra, palavra.celulas[0]);
+                    break;
+                }
+            }
+        });
+
+        // ===== Botão Conferir =====
+
+        botaoConferir.addEventListener("click", function () {
+            let palavrasCompletas = 0;
+
+            for (let i = 0; i < palavras.length; i++) {
+                const palavra = palavras[i];
+                let acertouTudo = true;
+
+                for (let j = 0; j < palavra.celulas.length; j++) {
+                    const celula = palavra.celulas[j];
+                    const input = celula.querySelector("input");
+                    celula.classList.remove("certa", "errada");
+
+                    if (input.value === "") {
+                        acertouTudo = false;
+                    } else if (input.value === celula.dataset.letra) {
+                        celula.classList.add("certa");
+                    } else {
+                        celula.classList.add("errada");
+                        acertouTudo = false;
+                    }
+                }
+
+                if (acertouTudo) {
+                    palavrasCompletas = palavrasCompletas + 1;
+                }
+            }
+
+            if (palavrasCompletas === palavras.length) {
+                resultado.textContent = "Parabéns! Tabuleiro completo.";
+                resultado.classList.add("sucesso");
+            } else {
+                resultado.textContent =
+                    palavrasCompletas + " de " + palavras.length + " palavras completas.";
+                resultado.classList.remove("sucesso");
+            }
+        });
+
+        // ===== Botão Limpar =====
+
+        botaoLimpar.addEventListener("click", function () {
+            for (let i = 0; i < celulas.length; i++) {
+                const input = celulas[i].querySelector("input");
+
+                if (input !== null) {
+                    input.value = "";
+                }
+
+                celulas[i].classList.remove("certa", "errada");
+            }
+
+            limparResultado();
+        });
+    </script>
 </body>
 </html>
