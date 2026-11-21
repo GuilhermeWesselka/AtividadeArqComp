@@ -26,7 +26,30 @@
 
         <aside id="dicas" class="dicas" aria-label="Dicas">
             <h2>Dicas</h2>
-            <p class="dicas-vazio">// aguardando as dicas...</p>
+            <p class="dicas-aviso">Sem acentos e sem espaços</p>
+
+            <label class="rotulo-dicas" for="seletor-dicas">Escolha uma dica</label>
+            <div class="campo-dicas">
+                <select id="seletor-dicas" class="seletor-dicas">
+                    <option value="" selected>Selecione uma dica...</option>
+                    <optgroup label="Horizontais">
+                        <option value="H1">1 &middot; Parte do processador que decodifica cada instrução e coordena os demais componentes. (2 letras)</option>
+                        <option value="H2">2 &middot; Recurso que permite a um periférico ler ou gravar na memória sem a CPU intermediar cada dado. (3 letras)</option>
+                        <option value="H5">5 &middot; Memória pequena e muito rápida que guarda cópias de dados usados com frequência pela CPU. (5 letras)</option>
+                        <option value="H7">7 &middot; Memórias internas da CPU, usadas para guardar temporariamente os valores em processamento. (12 letras)</option>
+                        <option value="H8">8 &middot; Memória gravada pelo fabricante, responsável por guardar as instruções iniciais do computador. (3 letras)</option>
+                        <option value="H9">9 &middot; Componente que busca, interpreta e executa as instruções de um programa. (3 letras)</option>
+                        <option value="H10">10 &middot; Memória não volátil regravável, presente em pendrives e SSDs. (5 letras)</option>
+                    </optgroup>
+                    <optgroup label="Verticais">
+                        <option value="V1">1 &middot; Circuito do processador onde são feitas as operações aritméticas e lógicas. (3 letras)</option>
+                        <option value="V3">3 &middot; Armazenamento permanente e de grande capacidade, como HDs e SSDs. (14 letras)</option>
+                        <option value="V4">4 &middot; Memória não volátil que pode ser apagada e regravada eletricamente, usada para guardar configurações. (6 letras)</option>
+                        <option value="V6">6 &middot; Conjunto de vias que leva à memória o endereço da posição que será acessada. (10 letras)</option>
+                        <option value="V7">7 &middot; Memória volátil que mantém os programas e dados em uso enquanto o computador está ligado. (3 letras)</option>
+                    </optgroup>
+                </select>
+            </div>
         </aside>
     </main>
 
