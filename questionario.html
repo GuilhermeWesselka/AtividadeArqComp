@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <script src="questionario.js" defer></script>
+    <title>Questionário | Arquitetura de Computadores</title>
+</head>
+<body>
+    <header class="cabecalho">
+        <h1>Questionário</h1>
+        <p class="subtitulo">Arquitetura de Computadores</p>
+        <a class="botao" href="index.html">Voltar às palavras cruzadas</a>
+    </header>
+    <main class="questionario">
+        <p>Marque uma alternativa em cada uma das 20 questões. Ao terminar, confira sua pontuação e leia as explicações para revisar.</p>
+        <section id="placar" hidden>
+            <h2 tabindex="-1">Resultado da tentativa</h2>
+            <p id="pontuacao"></p>
+            <p>Confira abaixo a correção de cada questão.</p>
+            <button type="button" class="botao" id="reiniciar">Tentar novamente</button>
+        </section>
+        <form id="quiz">
+            <div id="questoes"></div>
+            <button class="botao" type="submit">Corrigir questionário</button>
+        </form>
+    </main>
+</body>
+</html>

@@ -124,6 +124,7 @@ body {
 
 .tabuleiro {
     flex: 1 1 420px;
+    min-width: 0;
     display: flex;
     justify-content: center;
     align-items: flex-start;
@@ -133,12 +134,12 @@ body {
 .grade {
     position: relative;
     display: grid;
-    grid-template-columns: repeat(13, 1fr);
-    grid-template-rows: repeat(14, 1fr);
+    grid-template-columns: repeat(14, minmax(0, 1fr));
+    grid-template-rows: repeat(14, minmax(0, 1fr));
     gap: 3px;
     width: 100%;
     max-width: 420px;
-    aspect-ratio: 13 / 14;
+    aspect-ratio: 1;
     padding: 7px;
     border: 2px solid var(--borda);
     border-radius: 10px;
@@ -234,25 +235,41 @@ body {
         0 0 14px rgba(56, 225, 255, 0.45);
 }
 
-.celula.certa {
-    background-color: rgba(61, 255, 160, 0.2);
+.celula.certa,
+.celula.certa:hover {
+    background-color: var(--neon);
 }
 
-.celula.certa input {
-    color: var(--neon);
+.celula.errada,
+.celula.errada:hover {
+    background-color: #ff6262;
 }
 
-.celula.errada {
-    background-color: rgba(255, 86, 120, 0.18);
-    border-color: rgba(255, 86, 120, 0.6);
-}
-
+.celula.certa input,
 .celula.errada input {
-    color: #ff8aa2;
+    color: var(--fundo);
+    caret-color: var(--fundo);
 }
+
+#licao {
+    width: min(30rem, 90vw);
+    max-height: 85vh;
+    padding: 1.5rem;
+    background: #0a1418;
+    color: var(--texto);
+    border: 1px solid var(--neon);
+    border-radius: 10px;
+    text-align: left;
+    line-height: 1.5;
+}
+
+#licao::backdrop { background: rgba(0, 0, 0, 0.7); }
+#licao h2 { margin-top: 0; color: var(--neon); }
+#licao h3 { color: var(--ciano); }
 
 .dicas {
     position: relative;
+    min-width: 0;
     flex: 1 1 280px;
     padding: 1.5rem 1.6rem;
     text-align: left;
@@ -327,6 +344,14 @@ body {
     letter-spacing: 0.18em;
     text-transform: uppercase;
     color: var(--texto-fraco);
+}
+
+#progresso {
+    display: block;
+    width: 100%;
+    height: 0.8rem;
+    margin-bottom: 1.25rem;
+    accent-color: var(--neon);
 }
 
 .campo-dicas {
@@ -430,6 +455,25 @@ body {
     box-shadow: none;
 }
 
+.revisao {
+    margin-top: 1rem;
+}
+
+#busca-revisao {
+    width: 100%;
+    padding: 0.7rem;
+    border: 1px solid var(--borda);
+    border-radius: 6px;
+    background: var(--fundo);
+    color: var(--texto);
+    font: inherit;
+}
+
+#aviso-revisao { color: var(--texto-fraco); }
+.revisao details { padding: 0.6rem 0; border-top: 1px solid var(--borda); }
+.revisao summary { color: var(--ciano); cursor: pointer; }
+.revisao details p { line-height: 1.5; }
+
 .resultado {
     min-height: 1.2rem;
     margin: 0.9rem 0 0;
@@ -452,6 +496,28 @@ body {
     border-top: 1px solid rgba(61, 255, 160, 0.1);
     background: linear-gradient(180deg, transparent, rgba(61, 255, 160, 0.03));
 }
+
+.questionario {
+    width: min(100% - 2rem, 48rem);
+    margin: 0 auto 3rem;
+    text-align: left;
+    line-height: 1.5;
+}
+
+.questionario fieldset, #placar {
+    min-width: 0;
+    margin: 1.4rem 0;
+    padding: 1rem;
+    background: var(--painel);
+    border: 1px solid var(--borda);
+    border-radius: 8px;
+}
+
+.questionario legend { color: var(--ciano); }
+.questionario label { display: flex; align-items: baseline; gap: 0.6rem; padding: 0.35rem; cursor: pointer; }
+.questionario input { accent-color: var(--neon); }
+.quiz-acerto { color: var(--neon); }
+.quiz-erro { color: #ffa1a1; }
 
 @keyframes pulsar {
     50% {
