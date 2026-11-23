@@ -22,6 +22,11 @@
 
     <main class="conteudo">
         <section id="tabuleiro" class="tabuleiro" aria-label="Tabuleiro de palavras cruzadas">
+            <div class="guia-tabuleiro">
+                <span class="rotulo-dicas">Dica em jogo</span>
+                <p id="dica-em-jogo" aria-live="polite">Toque em uma casa ou escolha uma dica para começar.</p>
+                <button id="outra-dica" class="botao" type="button">Ir para uma dica em aberto →</button>
+            </div>
             <div id="grade" class="grade">
                 <div class="celula celula-vazia" data-linha="0" data-coluna="0" aria-hidden="true"></div>
                 <div class="celula celula-vazia" data-linha="0" data-coluna="1" aria-hidden="true"></div>
@@ -327,6 +332,19 @@
         let celulaAtual = null;
         let direcao = "H";
         let eraCelulaAtiva = false;
+        const outraDica = document.querySelector("#outra-dica");
+        const dicaEmJogo = document.querySelector("#dica-em-jogo");
+
+        outraDica.addEventListener("click", () => {
+            const atual = palavras.indexOf(palavraAtual);
+            for (let passo = 1; passo <= palavras.length; passo++) {
+                const proxima = palavras[(atual + passo) % palavras.length];
+                if (!palavrasCorretas.has(proxima)) {
+                    selecionarPalavra(proxima);
+                    break;
+                }
+            }
+        });
 
         // ===== Funções auxiliares =====
 
@@ -420,6 +438,8 @@
             }
 
             seletor.value = palavra.direcao + palavra.numero;
+            const textoDica = (direcao === "H" ? "Horizontal · " : "Vertical · ") + seletor.selectedOptions[0].textContent;
+            if (dicaEmJogo.textContent !== textoDica) dicaEmJogo.textContent = textoDica;
             if (celula) {
                 marcarCelula(celula);
                 celula.querySelector("input").focus();
@@ -497,6 +517,7 @@
             const mudou = novas.length > 0 || corretas.length !== palavrasCorretas.size;
             palavrasCorretas = new Set(corretas);
             progresso.value = corretas.length;
+            outraDica.disabled = corretas.length === palavras.length;
             contagem.textContent = corretas.length + " de " + palavras.length;
             if (mudou) atualizarRevisao();
             if (novas.length) mostrarLicao(novas);

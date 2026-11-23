@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="280" height="320" viewBox="0 0 280 320">
+    <defs>
+        <linearGradient id="rastro" x2="0" y2="1">
+            <stop stop-color="#3dffa0" stop-opacity="0.1"/>
+            <stop offset="1" stop-color="#88ffc4"/>
+        </linearGradient>
+    </defs>
+    <g font-family="monospace" font-size="13" fill="url(#rastro)">
+        <text x="22" y="16" dy="0 16 16 16 16 16 16" dx="0 -8 -8 -8 -8 -8 -8">0100110</text>
+        <text x="92" y="188" dy="0 16 16 16 16" dx="0 -8 -8 -8 -8">10110</text>
+        <text x="167" y="73" dy="0 16 16 16 16 16 16 16 16" dx="0 -8 -8 -8 -8 -8 -8 -8 -8">100101101</text>
+        <text x="241" y="234" dy="0 16 16 16 16 16" dx="0 -8 -8 -8 -8 -8">001010</text>
+    </g>
+</svg>

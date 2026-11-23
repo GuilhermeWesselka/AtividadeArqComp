@@ -27,6 +27,7 @@
             <p id="quiz-contagem"></p>
             <progress id="quiz-progresso" value="0"></progress>
             <nav id="quiz-atalhos" aria-label="Ir para uma questão"></nav>
+            <button id="quiz-pendente" class="botao" type="button">Ir para questão em aberto →</button>
         </aside>
         <div class="quiz-coluna">
         <section id="placar" hidden>
@@ -75,10 +76,16 @@
         const atalhos = document.querySelector('#quiz-atalhos');
         const progressoQuiz = document.querySelector('#quiz-progresso');
         progressoQuiz.max = questoes.length;
+        const pendente = document.querySelector('#quiz-pendente');
+        pendente.addEventListener('click', () => {
+            const aberta = Array.from(lista.children).find(campo => !campo.querySelector(':checked'));
+            if (aberta) aberta.querySelector('input').focus();
+        });
 
         function atualizarMapa() {
             const quantidade = lista.querySelectorAll('input:checked').length;
             progressoQuiz.value = quantidade;
+            pendente.hidden = quantidade === questoes.length;
             document.querySelector('#quiz-contagem').textContent = `${quantidade} de ${questoes.length} respondidas`;
             Array.from(atalhos.children).forEach((link, i) => {
                 const respondida = !!lista.children[i].querySelector(':checked');
